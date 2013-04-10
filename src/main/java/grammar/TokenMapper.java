@@ -24,7 +24,18 @@ public class TokenMapper {
 			while ((line = br.readLine()) != null) {
 				if(line.contains("=")) {
 					String[] args = line.split("=");
-					tokens.put(Integer.parseInt(args[1]), args[0]);
+					if(args.length == 2) {
+						tokens.put(Integer.parseInt(args[1]), args[0]);
+					} else {
+						String s = "";
+						for(int i = 0; i < args.length - 1; i++) {
+							s += args[i];
+							if(i < args.length - 2) {
+								s += "=";
+							}
+						}
+						tokens.put(Integer.parseInt(args[args.length - 1]), s);
+					}
 				}
 			}
 		} catch (FileNotFoundException e) {

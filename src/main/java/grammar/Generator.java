@@ -11,7 +11,7 @@ public class Generator {
 			+ "src/main/java/grammar/Grammar.g4";
 
 	private static final String OUTPUT = FileUtils.pwd()
-			+ "src/main/java/gen/";
+			+ "src/main/java/grammar/gen/";
 
 	private static final Logger LOGGER = Logger.getLogger(Generator.class);
 
