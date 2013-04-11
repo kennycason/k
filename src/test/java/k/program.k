@@ -82,7 +82,14 @@ begin name
 	print "f = " @foo
 	print "b = " @bar
 	print "fb = " @fb
+	
+	logging on 
+	@y = 0b1010011
+	logging off
 
 	print "Memory Dump:"
 	dump
+	
+	print "Tokens:"
+	tokens
 end

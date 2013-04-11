@@ -27,6 +27,7 @@ literal
  *------------------------------------------------------------------*/
 
 // keywords
+TOKENS	: ('tokens');
 PARAM	: ('param');
 LOGON	: ('logging on');
 LOGOFF	: ('logging off');

@@ -24,7 +24,7 @@ public class K {
 	
 	private TokenMapper mapper = new TokenMapper(FileUtils.pwd() + "src/main/java/grammar/gen/Grammar.tokens");
 
-	private LinkedList<Token> tokens;
+	private List<Token> rawTokens;
 	
 	private KFunction begin;
 	
@@ -33,7 +33,7 @@ public class K {
 	private static final Logger LOGGER = Logger.getLogger(K.class);
 	
 	public K() {
-		tokens = new LinkedList<Token>();
+		rawTokens = new LinkedList<Token>();
 		logging = false;
 	}
 	
@@ -41,9 +41,9 @@ public class K {
 		this.logging = logging;
 	}
 	
-	private void printTokens(List<Token> tokens) {
+	private void printTokens() {
 		StringBuffer sb = new StringBuffer();
-		for(Token token : tokens) {
+		for(Token token : rawTokens) {
 			sb.append(mapper.type(token.getType()) + " [" + token.getText() + "], ");
 		}
 		sb.append("\n");
@@ -60,13 +60,14 @@ public class K {
 		GrammarLexer lexer = new GrammarLexer(stream);
 		CommonTokenStream tokenStream = new CommonTokenStream(lexer);
 		tokenStream.fill();
-		printTokens(tokenStream.getTokens());
-		tokens.addAll(tokenStream.getTokens());
-		parseFunctions();
+		rawTokens.addAll(tokenStream.getTokens());
+		LinkedList<Token> consumableTokens = new LinkedList<Token>();
+		consumableTokens.addAll(tokenStream.getTokens());
+		parseFunctions(consumableTokens);
 	}
 	
 	// find entry point begin function
-	private void parseFunctions() {
+	private void parseFunctions(LinkedList<Token> tokens) {
 		
 		while(!tokens.isEmpty()) {
 			Token token = tokens.poll();
@@ -76,7 +77,7 @@ public class K {
 					if(tokens.peek().getType() == GrammarLexer.SYMBOL) { // optional for begin/end block
 						tokens.poll();
 					}
-					parseFunctionHelper(begin);
+					parseFunctionHelper(begin, tokens);
 					break;
 					
 				case GrammarLexer.END:
@@ -85,7 +86,7 @@ public class K {
 		}
 	}
 	
-	private void parseFunctionHelper(KFunction function) {
+	private void parseFunctionHelper(KFunction function, LinkedList<Token> tokens) {
 		while(!tokens.isEmpty()) {
 			Token token = tokens.poll();
 			switch(token.getType()) {
@@ -94,7 +95,7 @@ public class K {
 					if(tokens.peek().getType() == GrammarLexer.VARIABLE) { // optional for begin/end block
 						function.memory().write(tokens.poll().getText(), fn);
 					}
-					parseFunctionHelper(fn);
+					parseFunctionHelper(fn, tokens);
 					break;
 					
 				case GrammarLexer.END:
@@ -130,6 +131,10 @@ public class K {
 					System.out.println("Logging turned off");
 					logging = false;
 					break;	
+				case GrammarLexer.TOKENS:
+					printTokens();
+					break;
+					
 				case GrammarLexer.DUMP:
 					dump();
 					break;
