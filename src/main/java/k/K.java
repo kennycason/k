@@ -3,13 +3,12 @@ package k;
 import grammar.TokenMapper;
 import grammar.gen.GrammarLexer;
 
-import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 import k.memory.IStorable;
-import k.memory.MemoryBank;
 import k.types.KBoolean;
+import k.types.KFunction;
 import k.types.KNumber;
 import k.types.KString;
 import lib.FileUtils;
@@ -25,20 +24,15 @@ public class K {
 	
 	private TokenMapper mapper = new TokenMapper(FileUtils.pwd() + "src/main/java/grammar/gen/Grammar.tokens");
 
-	private List<Token> tokens;
+	private LinkedList<Token> tokens;
 	
-	private Iterator<Token> iter;
+	private KFunction begin;
 	
-	private Token currentToken;
-	
-	private MemoryBank memory;
-	
-	private boolean logging ;
+	private boolean logging;
 	
 	private static final Logger LOGGER = Logger.getLogger(K.class);
 	
 	public K() {
-		memory = new MemoryBank();
 		tokens = new LinkedList<Token>();
 		logging = false;
 	}
@@ -47,13 +41,13 @@ public class K {
 		this.logging = logging;
 	}
 	
-	private void printTokens() {
+	private void printTokens(List<Token> tokens) {
 		StringBuffer sb = new StringBuffer();
 		for(Token token : tokens) {
 			sb.append(mapper.type(token.getType()) + " [" + token.getText() + "], ");
 		}
 		sb.append("\n");
-		log(sb);
+		System.out.println(sb);
 	}
 	
 	public void compileFromFile(String file) {
@@ -66,31 +60,74 @@ public class K {
 		GrammarLexer lexer = new GrammarLexer(stream);
 		CommonTokenStream tokenStream = new CommonTokenStream(lexer);
 		tokenStream.fill();
-		tokens = tokenStream.getTokens();
-		printTokens();
+		printTokens(tokenStream.getTokens());
+		tokens.addAll(tokenStream.getTokens());
+		parseFunctions();
 	}
 	
-	public void execute(String code) {
-		compile(code);
+	// find entry point begin function
+	private void parseFunctions() {
+		
+		while(!tokens.isEmpty()) {
+			Token token = tokens.poll();
+			switch(token.getType()) {
+				case GrammarLexer.BEGIN:
+					begin = new KFunction();
+					if(tokens.peek().getType() == GrammarLexer.SYMBOL) { // optional for begin/end block
+						tokens.poll();
+					}
+					parseFunctionHelper(begin);
+					break;
+					
+				case GrammarLexer.END:
+					return;
+			}
+		}
 	}
 	
+	private void parseFunctionHelper(KFunction function) {
+		while(!tokens.isEmpty()) {
+			Token token = tokens.poll();
+			switch(token.getType()) {
+				case GrammarLexer.FUNC:
+					KFunction fn = new KFunction();
+					if(tokens.peek().getType() == GrammarLexer.VARIABLE) { // optional for begin/end block
+						function.memory().write(tokens.poll().getText(), fn);
+					}
+					parseFunctionHelper(fn);
+					break;
+					
+				case GrammarLexer.END:
+					return;
+					
+				default:
+					function.addToken(token);
+					break;
+			}
+		}
+	}
+
 	public void run() {
-		iter = tokens.iterator();
-		while(iter.hasNext()) {
-			currentToken = iter.next();
-			switch(currentToken.getType()) {
+		run(begin);
+	}
+		
+	private void run(KFunction fn) {
+		Token token;
+		while(fn.hasTokens()) {
+			token = fn.nextToken();
+			switch(token.getType()) {
 				case GrammarLexer.VARIABLE:
-					handleVariable();
+					handleVariable(fn);
 					break;
 				case GrammarLexer.PRINT:
-					handlePrint();
+					handlePrint(fn);
 					break;
 				case GrammarLexer.LOGON:
 					logging = true;
-					log("Logging turned on");
+					System.out.println("Logging turned on");
 					break;
 				case GrammarLexer.LOGOFF:
-					log("Logging turned off");
+					System.out.println("Logging turned off");
 					logging = false;
 					break;	
 				case GrammarLexer.DUMP:
@@ -100,65 +137,166 @@ public class K {
 		}
 	}
 	
-	private void handlePrint() {
-		String printable = "";
-		currentToken = iter.next();
-		log("printing " + mapper.type(currentToken.getType()) + " => " + currentToken.getText());
-		switch(currentToken.getType()) {
-			case GrammarLexer.VARIABLE:
-				IStorable<?> storable = memory.read(currentToken.getText());
-				if(storable != null) {
-					printable = storable.toString();
-				}
-				break;
-			case GrammarLexer.CHARACTER_LITERAL:
-			case GrammarLexer.STRING_LITERAL:
-			case GrammarLexer.BINARY_LITERAL:
-			case GrammarLexer.INTEGER_LITERAL:
-			case GrammarLexer.HEX_LITERAL:
-			case GrammarLexer.TRUE:
-			case GrammarLexer.FALSE:
-			case GrammarLexer.NULL:
-				printable = currentToken.getText();
-				break;
-		}	
-		System.out.println(printable);
+	private void handlePrint(KFunction fn) {
+		StringBuilder sb = new StringBuilder();
+		Token token;
+		do {
+			String printable = "";
+			token = fn.nextToken();
+			log("printing " + mapper.type(token.getType()) + " => " + token.getText());
+			switch(token.getType()) {
+				case GrammarLexer.VARIABLE:
+					IStorable<?> storable = fn.memory().read(token.getText());
+					if(storable != null) {
+						printable = storable.toString();
+					}
+					break;
+					
+				case GrammarLexer.CHARACTER_LITERAL:
+				case GrammarLexer.STRING_LITERAL:
+					printable = token.getText().substring(1, token.getText().length() - 1);
+					break;
+					
+				case GrammarLexer.BINARY_LITERAL:
+				case GrammarLexer.INTEGER_LITERAL:
+				case GrammarLexer.HEX_LITERAL:
+				case GrammarLexer.TRUE:
+				case GrammarLexer.FALSE:
+				case GrammarLexer.NULL:
+					printable = token.getText();
+					break;
+			}	
+			sb.append(printable);
+		} while(token != null && token.getType() != GrammarLexer.NEWLINE);
+		System.out.println(sb);
 	}
 	
-	private void handleVariable() {
-		String varName = currentToken.getText();
-		currentToken = iter.next();
-		switch(currentToken.getType()) {
-			case GrammarLexer.INC:
-				add(varName, 1);
-				break;
-			case GrammarLexer.DEC:
-				add(varName, -1);
-				break;
-			case GrammarLexer.ASSIGN:
-				assign(varName);
-				break;
-			case GrammarLexer.ADD_ASSIGN:
-				addAssign(varName);
-				break;
+	private void handleVariable(KFunction fn) {
+		Token var = fn.currentToken();
+		if(fn.memory().read(var.getText()) instanceof KFunction) {
+			KFunction gn = ((KFunction)fn.memory().read(var.getText()));
+			Token token;
+			do {
+				token = fn.nextToken();
+				if(token.getType() != GrammarLexer.NEWLINE) {
+					gn.addParameter(token);
+				}
+			} while(token != null && token.getType() != GrammarLexer.NEWLINE);
+			run(gn);
+			
+		} else {
+			switch(fn.nextToken().getType()) {
+				case GrammarLexer.INC:
+					add(fn, var, 1);
+					break;
+					
+				case GrammarLexer.DEC:
+					add(fn, var, -1);
+					break;
+					
+				case GrammarLexer.ASSIGN:
+					assign(fn, var);
+					break;
+					
+				case GrammarLexer.ADD_ASSIGN:
+					addAssign(fn, var);
+					break;
+					
+				case GrammarLexer.SUB_ASSIGN:
+					subAssign(fn, var);
+					break;
+			}
 		}
 	}
 	
-	private void addAssign(String varName) {
+	private void addAssign(KFunction fn, Token var) {
+		String varName = var.getText();
+		Token token = fn.nextToken();
+		IStorable<?> assignFrom = parseTokenToStorable(fn, token);
 		
+		log("adding " + assignFrom + " to " + varName);
+		IStorable<?> assignTo = fn.memory().read(varName);
+		if(assignTo == null) {
+			assignTo = assignFrom;
+		} else {
+			if(assignTo instanceof KNumber && assignFrom instanceof KNumber) {
+				assignTo = add(((KNumber)assignTo), ((KNumber)assignFrom));
+			} if(assignTo instanceof KString && assignFrom instanceof KString) {
+				assignTo = add(((KString)assignTo), ((KString)assignFrom));
+			} else {
+				log("Can not add non-number/string ");
+				return;
+			}
+		}
+		fn.memory().write(varName, assignTo);
+		log("variable " + varName + " after adding: " + fn.memory().read(varName));
 	}
 	
-	private void assign(String varName) {
-		currentToken = iter.next();
-		memory.write(varName, parseTokenToStorable(currentToken));
-		log("assigning value " + currentToken.getText() + " to " + varName);	
+	private KString add(KString assignTo, KString assignFrom) {
+		if(assignTo.value() == null) {
+			assignTo = assignFrom;
+		} else {
+			((KString)assignTo).value(
+					((KString)assignTo).value() + 
+					((KString)assignFrom).value());
+		}
+		return assignTo;
 	}
 	
-	private IStorable<?> parseTokenToStorable(Token token) {
+	private KNumber add(KNumber assignTo, KNumber assignFrom) {
+		if(assignTo.value() == null) {
+			assignTo = assignFrom;
+		} else {
+			((KNumber)assignTo).value(
+					((KNumber)assignTo).value() + 
+					((KNumber)assignFrom).value());
+		}
+		return assignTo;
+	}
+	
+	private void subAssign(KFunction fn, Token var) {
+		String varName = var.getText();
+		Token token = fn.nextToken();
+		IStorable<?> assignFrom = parseTokenToStorable(fn, token);
+		
+		log("subtracting " + assignFrom + " to " + varName);
+		IStorable<?> assignTo = fn.memory().read(varName);
+		if(assignTo == null) {
+			assignTo = assignFrom;
+		} else {
+			if(assignTo instanceof KNumber && assignFrom instanceof KNumber) {
+				assignTo = sub(((KNumber)assignTo), ((KNumber)assignFrom));
+			} else {
+				log("Can not subtract non-numbers ");
+				return;
+			}
+		}
+		fn.memory().write(varName, assignTo);
+		log("variable " + varName + " after subtracting: " + fn.memory().read(varName));
+	}
+	
+	private KNumber sub(KNumber assignTo, KNumber assignFrom) {
+		if(assignTo.value() == null) {
+			assignTo = assignFrom;
+		} else {
+			((KNumber)assignTo).value(
+					((KNumber)assignTo).value() - 
+					((KNumber)assignFrom).value());
+		}
+		return assignTo;
+	}
+	
+	private void assign(KFunction fn, Token var) {
+		Token token = fn.nextToken();
+		fn.memory().write(var.getText(), parseTokenToStorable(fn, token));
+		log("assigning value " + token.getText() + " to " + var.getText());	
+	}
+	
+	private IStorable<?> parseTokenToStorable(KFunction fn, Token token) {
 		switch(token.getType()) {
 			case GrammarLexer.VARIABLE:
-				return memory.read(token.getText());
-
+				return fn.memory().read(token.getText()).copy();
+			
 			case GrammarLexer.CHARACTER_LITERAL:
 			case GrammarLexer.STRING_LITERAL:
 				return new KString(trimEnds(token.getText()));
@@ -175,14 +313,19 @@ public class K {
 			case GrammarLexer.TRUE:
 			case GrammarLexer.FALSE:
 				return new KBoolean(Boolean.parseBoolean(token.getText()));
-	
+				
+			case GrammarLexer.PARAM:
+				int paramNumber = Integer.parseInt(fn.nextToken().getText());
+				return parseTokenToStorable(fn, fn.getParameter(paramNumber));
+				
 		}
 		return null;
 	}
 
-	private void add(String varName, double amount) {
+	private void add(KFunction fn, Token var, double amount) {
+		String varName = var.getText();
 		log("adding " + amount + " to " + varName);
-		IStorable<?> storable = memory.read(varName);
+		IStorable<?> storable = fn.memory().read(varName);
 		if(storable == null) {
 			storable = new KNumber(amount);
 		} else {
@@ -199,12 +342,12 @@ public class K {
 			}
 		}
 		// update storable
-		memory.write(varName, storable);
-		log("variable " + varName + " after adding: " + memory.read(varName));
+		fn.memory().write(varName, storable);
+		log("variable " + varName + " after adding: " + fn.memory().read(varName));
 	}
 	
 	private void dump() {
-		System.out.println(memory);
+		System.out.println(begin);
 	}
 	
 	private String trimEnds(String string) {

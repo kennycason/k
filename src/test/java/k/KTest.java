@@ -1,11 +1,9 @@
 package k;
 
-import org.junit.Test;
 
 public class KTest {
 
-	@Test
-	public void test() {
+	public static void main(String[] args) {
 		K k = new K();
 		k.compileFromFile("k/program.k");
 		k.run();

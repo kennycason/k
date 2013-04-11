@@ -14,4 +14,9 @@ public class KBoolean extends AbstractType<Boolean> {
 		this.value = value;
 	}
 	
+	@Override
+	public KBoolean copy() {
+		return new KBoolean(value);
+	}
+	
 }

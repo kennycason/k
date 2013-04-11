@@ -1,4 +1,4 @@
-// Generated from /home/kenny/k/src/main/java/grammar/Grammar.g4 by ANTLR 4.0
+// Generated from /home/destructo/workspace/k/src/main/java/grammar/Grammar.g4 by ANTLR 4.0
  package grammar.gen; 
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
@@ -15,19 +15,19 @@ public class GrammarParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		LOGON=1, LOGOFF=2, DUMP=3, PRINT=4, FUNC=5, IF=6, ELSE=7, ELSEIF=8, LOOP=9, 
-		BREAK=10, BEGIN=11, END=12, TRUE=13, FALSE=14, NULL=15, ASSIGN=16, INC=17, 
-		DEC=18, ADD=19, ADD_ASSIGN=20, SUB=21, SUB_ASSIGN=22, DIV=23, DIV_ASSIGN=24, 
-		MUL=25, MUL_ASSIGN=26, VARIABLE=27, HEX_LITERAL=28, BINARY_LITERAL=29, 
-		INTEGER_LITERAL=30, EXPONENT=31, CHARACTER_LITERAL=32, STRING_LITERAL=33, 
-		ACTION=34, SYMBOL=35, WS=36, BLOCK_COMMENT=37, LINE_COMMENT=38;
+		PARAM=1, LOGON=2, LOGOFF=3, DUMP=4, PRINT=5, FUNC=6, IF=7, ELSE=8, ELSEIF=9, 
+		LOOP=10, BREAK=11, BEGIN=12, END=13, TRUE=14, FALSE=15, NULL=16, ASSIGN=17, 
+		INC=18, DEC=19, ADD=20, ADD_ASSIGN=21, SUB=22, SUB_ASSIGN=23, DIV=24, 
+		DIV_ASSIGN=25, MUL=26, MUL_ASSIGN=27, VARIABLE=28, HEX_LITERAL=29, BINARY_LITERAL=30, 
+		INTEGER_LITERAL=31, EXPONENT=32, CHARACTER_LITERAL=33, STRING_LITERAL=34, 
+		ACTION=35, SYMBOL=36, NEWLINE=37, WS=38, BLOCK_COMMENT=39, LINE_COMMENT=40;
 	public static final String[] tokenNames = {
-		"<INVALID>", "LOGON", "LOGOFF", "DUMP", "PRINT", "FUNC", "IF", "ELSE", 
-		"ELSEIF", "LOOP", "BREAK", "BEGIN", "END", "TRUE", "FALSE", "NULL", "ASSIGN", 
-		"INC", "DEC", "ADD", "ADD_ASSIGN", "SUB", "SUB_ASSIGN", "DIV", "DIV_ASSIGN", 
-		"MUL", "MUL_ASSIGN", "VARIABLE", "HEX_LITERAL", "BINARY_LITERAL", "INTEGER_LITERAL", 
-		"EXPONENT", "CHARACTER_LITERAL", "STRING_LITERAL", "ACTION", "SYMBOL", 
-		"WS", "BLOCK_COMMENT", "LINE_COMMENT"
+		"<INVALID>", "PARAM", "LOGON", "LOGOFF", "DUMP", "PRINT", "FUNC", "IF", 
+		"ELSE", "ELSEIF", "LOOP", "BREAK", "BEGIN", "END", "TRUE", "FALSE", "NULL", 
+		"ASSIGN", "INC", "DEC", "ADD", "ADD_ASSIGN", "SUB", "SUB_ASSIGN", "DIV", 
+		"DIV_ASSIGN", "MUL", "MUL_ASSIGN", "VARIABLE", "HEX_LITERAL", "BINARY_LITERAL", 
+		"INTEGER_LITERAL", "EXPONENT", "CHARACTER_LITERAL", "STRING_LITERAL", 
+		"ACTION", "SYMBOL", "NEWLINE", "WS", "BLOCK_COMMENT", "LINE_COMMENT"
 	};
 	public static final int
 		RULE_expr = 0, RULE_assign = 1, RULE_literal = 2;
@@ -228,11 +228,11 @@ public class GrammarParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\2\3(\26\4\2\t\2\4\3\t\3\4\4\t\4\3\2\3\2\3\2\5\2\f\n\2\3\3\3\3\3\3\3\3"+
-		"\5\3\22\n\3\3\4\3\4\3\4\2\5\2\4\6\2\3\5\17\21\36 \"#\25\2\13\3\2\2\2\4"+
-		"\r\3\2\2\2\6\23\3\2\2\2\b\f\5\6\4\2\t\f\5\4\3\2\n\f\7\35\2\2\13\b\3\2"+
-		"\2\2\13\t\3\2\2\2\13\n\3\2\2\2\f\3\3\2\2\2\r\16\7\35\2\2\16\21\7\22\2"+
-		"\2\17\22\7\35\2\2\20\22\5\6\4\2\21\17\3\2\2\2\21\20\3\2\2\2\22\5\3\2\2"+
+		"\2\3*\26\4\2\t\2\4\3\t\3\4\4\t\4\3\2\3\2\3\2\5\2\f\n\2\3\3\3\3\3\3\3\3"+
+		"\5\3\22\n\3\3\4\3\4\3\4\2\5\2\4\6\2\3\5\20\22\37!#$\25\2\13\3\2\2\2\4"+
+		"\r\3\2\2\2\6\23\3\2\2\2\b\f\5\6\4\2\t\f\5\4\3\2\n\f\7\36\2\2\13\b\3\2"+
+		"\2\2\13\t\3\2\2\2\13\n\3\2\2\2\f\3\3\2\2\2\r\16\7\36\2\2\16\21\7\23\2"+
+		"\2\17\22\7\36\2\2\20\22\5\6\4\2\21\17\3\2\2\2\21\20\3\2\2\2\22\5\3\2\2"+
 		"\2\23\24\t\2\2\2\24\7\3\2\2\2\4\13\21";
 	public static final ATN _ATN =
 		ATNSimulator.deserialize(_serializedATN.toCharArray());

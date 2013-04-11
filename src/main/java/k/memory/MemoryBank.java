@@ -3,6 +3,8 @@ package k.memory;
 import java.util.HashMap;
 import java.util.Map.Entry;
 
+import k.types.KFunction;
+
 public class MemoryBank {
 
 	private HashMap<String, IStorable<?>> mem;
@@ -25,13 +27,29 @@ public class MemoryBank {
 	
 	@Override
 	public String toString() {
+		return toString(0);
+	}
+	
+	public String toString(int depth) {
+		String tabs = "";
+		for(int i = 0; i < depth; i++) {
+			tabs += "\t";
+		}
 		StringBuilder sb = new StringBuilder();
-		sb.append("Memory Dump:\n");
 		for(Entry<String, IStorable<?>> entry : mem.entrySet()) {
-			sb.append(entry.getKey() + "\t: " + entry.getValue() + "\n");
+
+			if(entry.getValue() instanceof KFunction) {
+				sb.append(tabs + entry.getKey() + "\t: FUNC()\n");
+				if(((KFunction)entry.getValue()).memory().size() > 0) {
+					sb.append(((KFunction)entry.getValue()).toString(depth + 1));
+				}
+			} else {
+				sb.append(tabs + entry.getKey() + "\t: " + entry.getValue() + "\n");
+			}
 		}
 		sb.append("\n");
 		return sb.toString();
 	}
+	
 	
 }

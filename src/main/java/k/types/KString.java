@@ -10,4 +10,9 @@ public class KString extends AbstractType<String> {
 		this.value = value;
 	}
 
+	@Override
+	public KString copy() {
+		return new KString(value);
+	}
+	
 }

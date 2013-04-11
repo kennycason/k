@@ -6,4 +6,6 @@ public interface IStorable<T> {
 	
 	T value();
 	
+	IStorable<T> copy();
+
 }

@@ -27,6 +27,7 @@ literal
  *------------------------------------------------------------------*/
 
 // keywords
+PARAM	: ('param');
 LOGON	: ('logging on');
 LOGOFF	: ('logging off');
 DUMP	: ('dump');
@@ -96,7 +97,9 @@ ACTION : '{' ( ACTION | ~[{}] )* '}' ;
 
 SYMBOL : CHAR+;
 
-WS : [ \t\r\n\u000C]+ -> skip;
+NEWLINE :'\r'? '\n';
+
+WS : [ \t\u000C]+ -> skip;
 
 BLOCK_COMMENT
 	: '/*' .*? '*/' -> skip

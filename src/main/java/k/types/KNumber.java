@@ -30,4 +30,9 @@ public class KNumber extends AbstractType<Double> {
 		this.value = (double)value;
 	}
 	
+	@Override
+	public KNumber copy() {
+		return new KNumber(value);
+	}
+	
 }
