@@ -15,19 +15,20 @@ public class GrammarParser extends Parser {
 	protected static final PredictionContextCache _sharedContextCache =
 		new PredictionContextCache();
 	public static final int
-		TOKENS=1, PARAM=2, LOGON=3, LOGOFF=4, DUMP=5, PRINT=6, FUNC=7, IF=8, ELSE=9, 
-		ELSEIF=10, LOOP=11, BREAK=12, BEGIN=13, END=14, TRUE=15, FALSE=16, NULL=17, 
-		ASSIGN=18, INC=19, DEC=20, ADD=21, ADD_ASSIGN=22, SUB=23, SUB_ASSIGN=24, 
-		DIV=25, DIV_ASSIGN=26, MUL=27, MUL_ASSIGN=28, VARIABLE=29, HEX_LITERAL=30, 
-		BINARY_LITERAL=31, INTEGER_LITERAL=32, EXPONENT=33, CHARACTER_LITERAL=34, 
-		STRING_LITERAL=35, ACTION=36, SYMBOL=37, NEWLINE=38, WS=39, BLOCK_COMMENT=40, 
-		LINE_COMMENT=41;
+		TOKENS=1, PARAM=2, DELETE=3, LOGON=4, LOGOFF=5, DUMP=6, PRINT=7, FUNC=8, 
+		IF=9, ELSE=10, ELSEIF=11, LOOP=12, BREAK=13, BEGIN=14, END=15, TRUE=16, 
+		FALSE=17, NULL=18, SEMICOLON=19, ASSIGN=20, INC=21, DEC=22, ADD=23, ADD_ASSIGN=24, 
+		SUB=25, SUB_ASSIGN=26, DIV=27, DIV_ASSIGN=28, MUL=29, MUL_ASSIGN=30, EXPONENT=31, 
+		EXPONENT_ASSIGN=32, MODULUS=33, MODULUS_ASSIGN=34, VARIABLE=35, HEX_LITERAL=36, 
+		BINARY_LITERAL=37, NUMBER_LITERAL=38, CHARACTER_LITERAL=39, STRING_LITERAL=40, 
+		ACTION=41, SYMBOL=42, NEWLINE=43, WS=44, BLOCK_COMMENT=45, LINE_COMMENT=46;
 	public static final String[] tokenNames = {
-		"<INVALID>", "TOKENS", "PARAM", "LOGON", "LOGOFF", "DUMP", "PRINT", "FUNC", 
-		"IF", "ELSE", "ELSEIF", "LOOP", "BREAK", "BEGIN", "END", "TRUE", "FALSE", 
-		"NULL", "ASSIGN", "INC", "DEC", "ADD", "ADD_ASSIGN", "SUB", "SUB_ASSIGN", 
-		"DIV", "DIV_ASSIGN", "MUL", "MUL_ASSIGN", "VARIABLE", "HEX_LITERAL", "BINARY_LITERAL", 
-		"INTEGER_LITERAL", "EXPONENT", "CHARACTER_LITERAL", "STRING_LITERAL", 
+		"<INVALID>", "TOKENS", "PARAM", "DELETE", "LOGON", "LOGOFF", "DUMP", "PRINT", 
+		"FUNC", "IF", "ELSE", "ELSEIF", "LOOP", "BREAK", "BEGIN", "END", "TRUE", 
+		"FALSE", "NULL", "SEMICOLON", "ASSIGN", "INC", "DEC", "ADD", "ADD_ASSIGN", 
+		"SUB", "SUB_ASSIGN", "DIV", "DIV_ASSIGN", "MUL", "MUL_ASSIGN", "EXPONENT", 
+		"EXPONENT_ASSIGN", "MODULUS", "MODULUS_ASSIGN", "VARIABLE", "HEX_LITERAL", 
+		"BINARY_LITERAL", "NUMBER_LITERAL", "CHARACTER_LITERAL", "STRING_LITERAL", 
 		"ACTION", "SYMBOL", "NEWLINE", "WS", "BLOCK_COMMENT", "LINE_COMMENT"
 	};
 	public static final int
@@ -156,7 +157,7 @@ public class GrammarParser extends Parser {
 			case NULL:
 			case HEX_LITERAL:
 			case BINARY_LITERAL:
-			case INTEGER_LITERAL:
+			case NUMBER_LITERAL:
 			case CHARACTER_LITERAL:
 			case STRING_LITERAL:
 				{
@@ -184,9 +185,9 @@ public class GrammarParser extends Parser {
 		public TerminalNode STRING_LITERAL() { return getToken(GrammarParser.STRING_LITERAL, 0); }
 		public TerminalNode HEX_LITERAL() { return getToken(GrammarParser.HEX_LITERAL, 0); }
 		public TerminalNode BINARY_LITERAL() { return getToken(GrammarParser.BINARY_LITERAL, 0); }
+		public TerminalNode NUMBER_LITERAL() { return getToken(GrammarParser.NUMBER_LITERAL, 0); }
 		public TerminalNode FALSE() { return getToken(GrammarParser.FALSE, 0); }
 		public TerminalNode TRUE() { return getToken(GrammarParser.TRUE, 0); }
-		public TerminalNode INTEGER_LITERAL() { return getToken(GrammarParser.INTEGER_LITERAL, 0); }
 		public TerminalNode NULL() { return getToken(GrammarParser.NULL, 0); }
 		public LiteralContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -211,7 +212,7 @@ public class GrammarParser extends Parser {
 			{
 			setState(17);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << TRUE) | (1L << FALSE) | (1L << NULL) | (1L << HEX_LITERAL) | (1L << BINARY_LITERAL) | (1L << INTEGER_LITERAL) | (1L << CHARACTER_LITERAL) | (1L << STRING_LITERAL))) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & ((1L << TRUE) | (1L << FALSE) | (1L << NULL) | (1L << HEX_LITERAL) | (1L << BINARY_LITERAL) | (1L << NUMBER_LITERAL) | (1L << CHARACTER_LITERAL) | (1L << STRING_LITERAL))) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			consume();
@@ -229,12 +230,12 @@ public class GrammarParser extends Parser {
 	}
 
 	public static final String _serializedATN =
-		"\2\3+\26\4\2\t\2\4\3\t\3\4\4\t\4\3\2\3\2\3\2\5\2\f\n\2\3\3\3\3\3\3\3\3"+
-		"\5\3\22\n\3\3\4\3\4\3\4\2\5\2\4\6\2\3\5\21\23 \"$%\25\2\13\3\2\2\2\4\r"+
-		"\3\2\2\2\6\23\3\2\2\2\b\f\5\6\4\2\t\f\5\4\3\2\n\f\7\37\2\2\13\b\3\2\2"+
-		"\2\13\t\3\2\2\2\13\n\3\2\2\2\f\3\3\2\2\2\r\16\7\37\2\2\16\21\7\24\2\2"+
-		"\17\22\7\37\2\2\20\22\5\6\4\2\21\17\3\2\2\2\21\20\3\2\2\2\22\5\3\2\2\2"+
-		"\23\24\t\2\2\2\24\7\3\2\2\2\4\13\21";
+		"\2\3\60\26\4\2\t\2\4\3\t\3\4\4\t\4\3\2\3\2\3\2\5\2\f\n\2\3\3\3\3\3\3\3"+
+		"\3\5\3\22\n\3\3\4\3\4\3\4\2\5\2\4\6\2\3\4\22\24&*\25\2\13\3\2\2\2\4\r"+
+		"\3\2\2\2\6\23\3\2\2\2\b\f\5\6\4\2\t\f\5\4\3\2\n\f\7%\2\2\13\b\3\2\2\2"+
+		"\13\t\3\2\2\2\13\n\3\2\2\2\f\3\3\2\2\2\r\16\7%\2\2\16\21\7\26\2\2\17\22"+
+		"\7%\2\2\20\22\5\6\4\2\21\17\3\2\2\2\21\20\3\2\2\2\22\5\3\2\2\2\23\24\t"+
+		"\2\2\2\24\7\3\2\2\2\4\13\21";
 	public static final ATN _ATN =
 		ATNSimulator.deserialize(_serializedATN.toCharArray());
 	static {

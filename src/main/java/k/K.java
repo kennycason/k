@@ -34,7 +34,7 @@ public class K {
 	
 	public K() {
 		rawTokens = new LinkedList<Token>();
-		logging = false;
+		logging = true;
 	}
 	
 	public void logging(boolean logging) {
@@ -120,17 +120,25 @@ public class K {
 				case GrammarLexer.VARIABLE:
 					handleVariable(fn);
 					break;
-				case GrammarLexer.PRINT:
-					handlePrint(fn);
+					
+				case GrammarLexer.DELETE:
+					delete(fn);
 					break;
+					
+				case GrammarLexer.PRINT:
+					print(fn);
+					break;
+					
 				case GrammarLexer.LOGON:
 					logging = true;
 					System.out.println("Logging turned on");
 					break;
+					
 				case GrammarLexer.LOGOFF:
 					System.out.println("Logging turned off");
 					logging = false;
 					break;	
+					
 				case GrammarLexer.TOKENS:
 					printTokens();
 					break;
@@ -142,13 +150,30 @@ public class K {
 		}
 	}
 	
-	private void handlePrint(KFunction fn) {
+	private void delete(KFunction fn) {
+		Token token;
+		do {
+			token = fn.nextToken();
+			trace("deleting " + token.getText());
+			switch(token.getType()) {
+				case GrammarLexer.VARIABLE:
+					fn.memory().delete(token.getText());
+					break;
+					
+				default:
+					warn("trying to delete non var: " + token.getText());
+					break;
+			}	
+		} while(token != null && token.getType() != GrammarLexer.NEWLINE);
+	}
+	
+	private void print(KFunction fn) {
 		StringBuilder sb = new StringBuilder();
 		Token token;
 		do {
 			String printable = "";
 			token = fn.nextToken();
-			log("printing " + mapper.type(token.getType()) + " => " + token.getText());
+			trace("printing " + mapper.type(token.getType()) + " => " + token.getText());
 			switch(token.getType()) {
 				case GrammarLexer.VARIABLE:
 					IStorable<?> storable = fn.memory().read(token.getText());
@@ -163,7 +188,7 @@ public class K {
 					break;
 					
 				case GrammarLexer.BINARY_LITERAL:
-				case GrammarLexer.INTEGER_LITERAL:
+				case GrammarLexer.NUMBER_LITERAL:
 				case GrammarLexer.HEX_LITERAL:
 				case GrammarLexer.TRUE:
 				case GrammarLexer.FALSE:
@@ -203,13 +228,36 @@ public class K {
 					assign(fn, var);
 					break;
 					
+				case GrammarLexer.ADD:
 				case GrammarLexer.ADD_ASSIGN:
 					addAssign(fn, var);
 					break;
 					
+				case GrammarLexer.SUB:
 				case GrammarLexer.SUB_ASSIGN:
 					subAssign(fn, var);
 					break;
+						
+				case GrammarLexer.MUL:
+				case GrammarLexer.MUL_ASSIGN:
+					mulAssign(fn, var);
+					break;
+					
+				case GrammarLexer.DIV:
+				case GrammarLexer.DIV_ASSIGN:
+					divAssign(fn, var);
+					break;
+					
+				case GrammarLexer.EXPONENT:
+				case GrammarLexer.EXPONENT_ASSIGN:
+					exponentAssign(fn, var);
+					break;		
+					
+				case GrammarLexer.MODULUS:
+				case GrammarLexer.MODULUS_ASSIGN:
+					modulusAssign(fn, var);
+					break;	
+					
 			}
 		}
 	}
@@ -219,22 +267,168 @@ public class K {
 		Token token = fn.nextToken();
 		IStorable<?> assignFrom = parseTokenToStorable(fn, token);
 		
-		log("adding " + assignFrom + " to " + varName);
+		trace("adding " + assignFrom + " to " + varName);
 		IStorable<?> assignTo = fn.memory().read(varName);
 		if(assignTo == null) {
 			assignTo = assignFrom;
 		} else {
 			if(assignTo instanceof KNumber && assignFrom instanceof KNumber) {
 				assignTo = add(((KNumber)assignTo), ((KNumber)assignFrom));
-			} if(assignTo instanceof KString && assignFrom instanceof KString) {
+			} else if(assignTo instanceof KString && assignFrom instanceof KString) {
 				assignTo = add(((KString)assignTo), ((KString)assignFrom));
 			} else {
-				log("Can not add non-number/string ");
+				error("Can not add non-number/string ");
 				return;
 			}
 		}
 		fn.memory().write(varName, assignTo);
-		log("variable " + varName + " after adding: " + fn.memory().read(varName));
+	}
+	
+	private void subAssign(KFunction fn, Token var) {
+		String varName = var.getText();
+		Token token = fn.nextToken();
+		IStorable<?> assignFrom = parseTokenToStorable(fn, token);
+		
+		trace("subtracting " + assignFrom + " to " + varName);
+		IStorable<?> assignTo = fn.memory().read(varName);
+		if(assignTo == null) {
+			assignTo = assignFrom;
+		} else {
+			if(assignTo instanceof KNumber && assignFrom instanceof KNumber) {
+				assignTo = sub(((KNumber)assignTo), ((KNumber)assignFrom));
+			} else {
+				error("Can not subtract non-numbers ");
+				return;
+			}
+		}
+		fn.memory().write(varName, assignTo);
+	}
+	
+	private void mulAssign(KFunction fn, Token var) {
+		String varName = var.getText();
+		Token token = fn.nextToken();
+		IStorable<?> assignFrom = parseTokenToStorable(fn, token);
+		
+		trace("multiplying " + assignFrom + " and " + varName);
+		IStorable<?> assignTo = fn.memory().read(varName);
+		if(assignTo == null) {
+			assignTo = assignFrom;
+		} else {
+			if(assignTo instanceof KNumber && assignFrom instanceof KNumber) {
+				assignTo = mul(((KNumber)assignTo), ((KNumber)assignFrom));
+			} else {
+				error("Can not multiply non-numbers ");
+				return;
+			}
+		}
+		fn.memory().write(varName, assignTo);
+	}
+	
+	private void divAssign(KFunction fn, Token var) {
+		String varName = var.getText();
+		Token token = fn.nextToken();
+		IStorable<?> assignFrom = parseTokenToStorable(fn, token);
+		
+		trace("dividing " + varName + " into " + assignFrom);
+		IStorable<?> assignTo = fn.memory().read(varName);
+		if(assignTo == null) {
+			assignTo = assignFrom;
+		} else {
+			if(assignTo instanceof KNumber && assignFrom instanceof KNumber) {
+				assignTo = div(((KNumber)assignTo), ((KNumber)assignFrom));
+			} else {
+				error("Can not divide non-numbers ");
+				return;
+			}
+		}
+		fn.memory().write(varName, assignTo);
+	}
+	
+	private void exponentAssign(KFunction fn, Token var) {
+		String varName = var.getText();
+		Token token = fn.nextToken();
+		IStorable<?> assignFrom = parseTokenToStorable(fn, token);
+		
+		trace("raising " + varName + " to the " + assignFrom + " power");
+		IStorable<?> assignTo = fn.memory().read(varName);
+		if(assignTo == null) {
+			assignTo = assignFrom;
+		} else {
+			if(assignTo instanceof KNumber && assignFrom instanceof KNumber) {
+				assignTo = exponent(((KNumber)assignTo), ((KNumber)assignFrom));
+			} else {
+				error("Can not apply exponent non-numbers ");
+				return;
+			}
+		}
+		fn.memory().write(varName, assignTo);
+	}
+	
+	private void modulusAssign(KFunction fn, Token var) {
+		String varName = var.getText();
+		Token token = fn.nextToken();
+		IStorable<?> assignFrom = parseTokenToStorable(fn, token);
+		
+		trace(varName + " modulus " + assignFrom);
+		IStorable<?> assignTo = fn.memory().read(varName);
+		if(assignTo == null) {
+			assignTo = assignFrom;
+		} else {
+			if(assignTo instanceof KNumber && assignFrom instanceof KNumber) {
+				assignTo = modulus(((KNumber)assignTo), ((KNumber)assignFrom));
+			} else {
+				error("Can not apply modulus non-numbers ");
+				return;
+			}
+		}
+		fn.memory().write(varName, assignTo);
+	}
+	
+	private KNumber modulus(KNumber assignTo, KNumber assignFrom) {
+		if(assignTo.value() == null) {
+			assignTo = assignFrom;
+		} else {
+			((KNumber)assignTo).value(
+							((KNumber)assignTo).value() % 
+							((KNumber)assignFrom).value()
+							);
+		}
+		return assignTo;
+	}
+	
+	private KNumber exponent(KNumber assignTo, KNumber assignFrom) {
+		if(assignTo.value() == null) {
+			assignTo = assignFrom;
+		} else {
+			((KNumber)assignTo).value(
+					Math.pow(
+							((KNumber)assignTo).value(), 
+							((KNumber)assignFrom).value()
+							));
+		}
+		return assignTo;
+	}
+	
+	private KNumber mul(KNumber assignTo, KNumber assignFrom) {
+		if(assignTo.value() == null) {
+			assignTo = assignFrom;
+		} else {
+			((KNumber)assignTo).value(
+					((KNumber)assignTo).value() * 
+					((KNumber)assignFrom).value());
+		}
+		return assignTo;
+	}
+	
+	private KNumber div(KNumber assignTo, KNumber assignFrom) {
+		if(assignTo.value() == null) {
+			assignTo = assignFrom;
+		} else {
+			((KNumber)assignTo).value(
+					((KNumber)assignTo).value() / 
+					((KNumber)assignFrom).value());
+		}
+		return assignTo;
 	}
 	
 	private KString add(KString assignTo, KString assignFrom) {
@@ -259,27 +453,6 @@ public class K {
 		return assignTo;
 	}
 	
-	private void subAssign(KFunction fn, Token var) {
-		String varName = var.getText();
-		Token token = fn.nextToken();
-		IStorable<?> assignFrom = parseTokenToStorable(fn, token);
-		
-		log("subtracting " + assignFrom + " to " + varName);
-		IStorable<?> assignTo = fn.memory().read(varName);
-		if(assignTo == null) {
-			assignTo = assignFrom;
-		} else {
-			if(assignTo instanceof KNumber && assignFrom instanceof KNumber) {
-				assignTo = sub(((KNumber)assignTo), ((KNumber)assignFrom));
-			} else {
-				log("Can not subtract non-numbers ");
-				return;
-			}
-		}
-		fn.memory().write(varName, assignTo);
-		log("variable " + varName + " after subtracting: " + fn.memory().read(varName));
-	}
-	
 	private KNumber sub(KNumber assignTo, KNumber assignFrom) {
 		if(assignTo.value() == null) {
 			assignTo = assignFrom;
@@ -294,12 +467,16 @@ public class K {
 	private void assign(KFunction fn, Token var) {
 		Token token = fn.nextToken();
 		fn.memory().write(var.getText(), parseTokenToStorable(fn, token));
-		log("assigning value " + token.getText() + " to " + var.getText());	
+		trace("assigning value " + token.getText() + " to " + var.getText());	
 	}
 	
 	private IStorable<?> parseTokenToStorable(KFunction fn, Token token) {
 		switch(token.getType()) {
 			case GrammarLexer.VARIABLE:
+				if(fn.memory().read(token.getText()) == null) {
+					warn("Variable " + token.getText() + " undefined, defaulting to 0.0");
+					fn.memory().write(token.getText(), new KNumber(0));
+				}
 				return fn.memory().read(token.getText()).copy();
 			
 			case GrammarLexer.CHARACTER_LITERAL:
@@ -309,7 +486,7 @@ public class K {
 			case GrammarLexer.BINARY_LITERAL:
 				return new KNumber(Integer.parseInt(token.getText().substring(2), 2));
 
-			case GrammarLexer.INTEGER_LITERAL:
+			case GrammarLexer.NUMBER_LITERAL:
 				return new KNumber(Double.parseDouble(token.getText()));
 	
 			case GrammarLexer.HEX_LITERAL:
@@ -329,7 +506,7 @@ public class K {
 
 	private void add(KFunction fn, Token var, double amount) {
 		String varName = var.getText();
-		log("adding " + amount + " to " + varName);
+		trace("adding " + amount + " to " + varName);
 		IStorable<?> storable = fn.memory().read(varName);
 		if(storable == null) {
 			storable = new KNumber(amount);
@@ -348,7 +525,7 @@ public class K {
 		}
 		// update storable
 		fn.memory().write(varName, storable);
-		log("variable " + varName + " after adding: " + fn.memory().read(varName));
+		trace("variable " + varName + " after adding: " + fn.memory().read(varName));
 	}
 	
 	private void dump() {
@@ -362,7 +539,25 @@ public class K {
 		return string.substring(1, string.length() - 1);
 	}
 	
-	private void log(Object msg) {
+	private void error(Object msg) {
+		if(logging) {
+			LOGGER.error(msg);
+		}
+	}
+	
+	private void warn(Object msg) {
+		if(logging) {
+			LOGGER.warn(msg);
+		}
+	}
+	
+	private void info(Object msg) {
+		if(logging) {
+			LOGGER.info(msg);
+		}
+	}
+	
+	private void trace(Object msg) {
 		if(logging) {
 			LOGGER.trace(msg);
 		}

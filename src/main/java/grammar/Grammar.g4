@@ -14,7 +14,7 @@ assign : VARIABLE ASSIGN (VARIABLE | literal);
 literal
     : HEX_LITERAL
     | BINARY_LITERAL
-    | INTEGER_LITERAL
+    | NUMBER_LITERAL
     | CHARACTER_LITERAL
     | STRING_LITERAL
     | TRUE
@@ -29,6 +29,7 @@ literal
 // keywords
 TOKENS	: ('tokens');
 PARAM	: ('param');
+DELETE 	: ('delete');
 LOGON	: ('logging on');
 LOGOFF	: ('logging off');
 DUMP	: ('dump');
@@ -44,6 +45,7 @@ END 	: ('end');
 TRUE	: ('true');
 FALSE 	: ('false');	
 NULL	: ('null'); 
+SEMICOLON : (';');
 ASSIGN	: ('=');
 INC	: ('++');
 DEC	: ('--');
@@ -55,6 +57,10 @@ DIV	: ('/');
 DIV_ASSIGN	: ('/=');
 MUL: ('*');
 MUL_ASSIGN	: ('*=');
+EXPONENT : ('^');
+EXPONENT_ASSIGN : ('^=');
+MODULUS : ('%');
+MODULUS_ASSIGN : ('%=');
 
 fragment
 CHAR	: [a-zA-Z_];
@@ -65,7 +71,10 @@ HEX_LITERAL : ('0x') HEX_DIGIT+;
 
 BINARY_LITERAL : ('0b') [0-1]+;
 
-INTEGER_LITERAL : ('0' | INT_DIGIT INT_DIGIT*);
+NUMBER_LITERAL	: INTEGER+ ('.')? INTEGER*;
+
+fragment
+INTEGER : ('0' | INT_DIGIT INT_DIGIT*);
 
 fragment
 HEX_DIGIT : [0-9] | [a-f] | [A-F];
@@ -73,7 +82,7 @@ HEX_DIGIT : [0-9] | [a-f] | [A-F];
 fragment
 INT_DIGIT : [0-9];
 
-EXPONENT : '^' ('+'|'-')? INT_DIGIT+ ;
+// EXPONENT : '^' ('+'|'-')? INT_DIGIT+ ;
 
 CHARACTER_LITERAL
     :   '\'' ( ESCAPE_SEQUENCE | ~('\''|'\\') ) '\''

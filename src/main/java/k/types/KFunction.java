@@ -20,8 +20,7 @@ public class KFunction extends AbstractType<List<Token>> {
 
 	public KFunction() {
 		memory = new MemoryBank();
-		memory.write("_ID",
-				new KNumber(System.identityHashCode(this.hashCode())));
+		// memory.write("_ID", new KNumber(System.identityHashCode(this.hashCode())));
 		value = new LinkedList<Token>();
 		params = new LinkedList<Token>();
 	}

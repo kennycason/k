@@ -1,5 +1,5 @@
-begin name
-	logging off		// turn logging on
+begin main
+	logging on		// turn logging on, should be on by default
 	
 	// function definitions
 	 
@@ -28,21 +28,30 @@ begin name
 	@a = 10 	// base 10
 	print "set a to 10 = " @a
 	
-	@a += 2
+	@d + @p
+	
+	print "begin assign test"
+	@a + 2
 	print "add 2 to a = " @a
 	
-	@a += @a
+	@a + @a
 	print "a = " @a
-	
+	print "end assign test"
+
 	@a -= 4
 	print "a = " @a
 	
 	@z = 33
 	print "z = " @z
 	
-	@z -= @a
+	@z - @a
 	print "subtract a from z = " @z
 	
+	@z * 3
+	print "multiply 3 and z = " @z
+
+	@z / 3.14
+	print "divide z by 3.14 = " @z
 	
 	@a = 0xff 	// base 16
 	print "a = " @a
@@ -58,6 +67,14 @@ begin name
 	
 	@c = 100000
 	print "c = " @c
+	
+	@e = 7
+    @e ^ 13
+	print "7 ^ 13 = " @e
+	
+    @e = 10
+    @e % 8
+	print "10 % 8 = " @e
 	
 	print "before function test"
 	@f 10 "2nd param"
@@ -78,7 +95,7 @@ begin name
 	print "f = " @foo
 	print "b = " @bar
 	@fb = @foo
-	@fb += @bar
+	@fb + @bar
 	print "f = " @foo
 	print "b = " @bar
 	print "fb = " @fb
@@ -88,6 +105,9 @@ begin name
 	logging off
 
 	print "Memory Dump:"
+	dump
+	print "Delete everything except function f"
+	delete @a @b @c @y @fb @foo @bar @p @g @d @z @e
 	dump
 	
 	print "Tokens:"

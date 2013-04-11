@@ -17,8 +17,12 @@ public class MemoryBank {
 		mem.put(var, value);
 	}
 	
-	public IStorable<?> read(String storable) {
-		return mem.get(storable);
+	public IStorable<?> read(String var) {
+		return mem.get(var);
+	}
+	
+	public void delete(String var) {
+		mem.remove(var);
 	}
 	
 	public int size() {
@@ -47,9 +51,7 @@ public class MemoryBank {
 				sb.append(tabs + entry.getKey() + "\t: " + entry.getValue() + "\n");
 			}
 		}
-		sb.append("\n");
 		return sb.toString();
-	}
-	
+	}	
 	
 }
