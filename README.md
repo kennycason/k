@@ -6,7 +6,7 @@ It's goal is to be simple enough for me to eventually be able to compile a natur
 Example Code:
 ```
 begin name
-  logging off		// turn logging on
+	logging off		// turn logging on
 	
 	// function definitions
 	 
@@ -89,16 +89,22 @@ begin name
 	print "f = " @foo
 	print "b = " @bar
 	print "fb = " @fb
+	
+	logging on 
+	@y = 0b1010011
+	logging off
 
 	print "Memory Dump:"
 	dump
+	
+	print "Tokens:"
+	tokens
 end
 ```
 
 Output:
 ```
 Reading file: k/program.k
-
 Logging turned off
 Welcome to my program demo
 set a to 10 = 10.0
@@ -131,15 +137,18 @@ b = bar
 f = foo
 b = bar
 fb = foobar
+Logging turned on
+TRACE k.K - assigning value 0b1010011 to @y
+Logging turned off
 Memory Dump:
-@b  : 100001.0
+@b	: 100001.0
 @foo	: foo
 @c	: 100000.0
 @a	: 256.0
 @f	: FUNC()
 	@p2	: 2nd param
 	@p1	: 10.0
-	_ID	: 7578443.0
+	_ID	: 2.032437E7
 
 @fb	: foobar
 @g	: FUNC()
@@ -147,19 +156,17 @@ Memory Dump:
 	@h	: FUNC()
 		@v	: 10.0
 		@x	: 20.0
-		_ID	: 1.4440411E7
+		_ID	: 1.1546362E7
 
-	_ID	: 1.028443E7
+	_ID	: 3.182212E7
 
 @z	: 13.0
+@y	: 83.0
 @bar	: bar
-_ID	: 2.9131495E7
-```
+_ID	: 1.3419912E7
 
 
-
-Token Stream for previous code:
-```
+Tokens:
 BEGIN [begin], SYMBOL [name], NEWLINE [
 ], LOGOFF [logging off], NEWLINE [
 ], NEWLINE [
@@ -245,8 +252,16 @@ BEGIN [begin], SYMBOL [name], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["b = "], VARIABLE [@bar], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["fb = "], VARIABLE [@fb], NEWLINE [
 ], NEWLINE [
+], LOGON [logging on], NEWLINE [
+], VARIABLE [@y], ASSIGN [=], BINARY_LITERAL [0b1010011], NEWLINE [
+], LOGOFF [logging off], NEWLINE [
+], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["Memory Dump:"], NEWLINE [
 ], DUMP [dump], NEWLINE [
+], NEWLINE [
+], PRINT [print], STRING_LITERAL ["Tokens:"], NEWLINE [
+], TOKENS [tokens], NEWLINE [
 ], END [end], NEWLINE [
 ], null [<EOF>], 
+ 
 ```
