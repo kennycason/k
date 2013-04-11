@@ -5,8 +5,8 @@ It's goal is to be simple enough for me to eventually be able to compile a natur
 
 Example Code:
 ```
-begin name
-	logging off		// turn logging on
+begin main
+	logging on		// turn logging on, should be on by default
 	
 	// function definitions
 	 
@@ -35,21 +35,30 @@ begin name
 	@a = 10 	// base 10
 	print "set a to 10 = " @a
 	
-	@a += 2
+	@d + @p
+	
+	print "begin assign test"
+	@a + 2
 	print "add 2 to a = " @a
 	
-	@a += @a
+	@a + @a
 	print "a = " @a
-	
+	print "end assign test"
+
 	@a -= 4
 	print "a = " @a
 	
 	@z = 33
 	print "z = " @z
 	
-	@z -= @a
+	@z - @a
 	print "subtract a from z = " @z
 	
+	@z * 3
+	print "multiply 3 and z = " @z
+
+	@z / 3.14
+	print "divide z by 3.14 = " @z
 	
 	@a = 0xff 	// base 16
 	print "a = " @a
@@ -65,6 +74,14 @@ begin name
 	
 	@c = 100000
 	print "c = " @c
+	
+	@e = 7
+    @e ^ 13
+	print "7 ^ 13 = " @e
+	
+    @e = 10
+    @e % 8
+	print "10 % 8 = " @e
 	
 	print "before function test"
 	@f 10 "2nd param"
@@ -85,7 +102,7 @@ begin name
 	print "f = " @foo
 	print "b = " @bar
 	@fb = @foo
-	@fb += @bar
+	@fb + @bar
 	print "f = " @foo
 	print "b = " @bar
 	print "fb = " @fb
@@ -96,6 +113,9 @@ begin name
 
 	print "Memory Dump:"
 	dump
+	print "Delete everything except function f"
+	delete @a @b @c @y @fb @foo @bar @p @g @d @z @e
+	dump
 	
 	print "Tokens:"
 	tokens
@@ -105,19 +125,26 @@ end
 Output:
 ```
 Reading file: k/program.k
-Logging turned off
+Logging turned on
 Welcome to my program demo
 set a to 10 = 10.0
+WARN  k.K - Variable @p undefined, defaulting to 0.0
+begin assign test
 add 2 to a = 12.0
 a = 24.0
+end assign test
 a = 20.0
 z = 33.0
 subtract a from z = 13.0
+multiply 3 and z = 39.0
+divide z by 3.14 = 12.420382165605096
 a = 255.0
 increment a = 256.0
 b = 8.0
 decrement b = 7.0
 c = 100000.0
+7 ^ 13 = 9.6889010407E10
+10 % 8 = 2.0
 before function test
 inside function f()
 param 1 = 10.0
@@ -138,44 +165,43 @@ f = foo
 b = bar
 fb = foobar
 Logging turned on
-TRACE k.K - assigning value 0b1010011 to @y
 Logging turned off
 Memory Dump:
+@p	: 0.0
+@fb	: foobar
+@z	: 12.420382165605096
+@y	: 83.0
 @b	: 100001.0
-@foo	: foo
 @c	: 100000.0
+@foo	: foo
 @a	: 256.0
 @f	: FUNC()
 	@p2	: 2nd param
 	@p1	: 10.0
-	_ID	: 2.032437E7
-
-@fb	: foobar
 @g	: FUNC()
 	@v	: 1.0
 	@h	: FUNC()
 		@v	: 10.0
 		@x	: 20.0
-		_ID	: 1.1546362E7
-
-	_ID	: 3.182212E7
-
-@z	: 13.0
-@y	: 83.0
+@d	: 0.0
+@e	: 2.0
 @bar	: bar
-_ID	: 1.3419912E7
 
+Delete everything except function f
+@f	: FUNC()
+	@p2	: 2nd param
+	@p1	: 10.0
 
 Tokens:
-BEGIN [begin], SYMBOL [name], NEWLINE [
-], LOGOFF [logging off], NEWLINE [
+BEGIN [begin], SYMBOL [main], NEWLINE [
+], LOGON [logging on], NEWLINE [
 ], NEWLINE [
 ], NEWLINE [
 ], NEWLINE [
 ], FUNC [function], VARIABLE [@f], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["inside function f()"], NEWLINE [
-], VARIABLE [@p1], ASSIGN [=], PARAM [param], INTEGER_LITERAL [1], NEWLINE [
-], VARIABLE [@p2], ASSIGN [=], PARAM [param], INTEGER_LITERAL [2], NEWLINE [
+], VARIABLE [@p1], ASSIGN [=], PARAM [param], NUMBER_LITERAL [1], NEWLINE [
+], VARIABLE [@p2], ASSIGN [=], PARAM [param], NUMBER_LITERAL [2], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["param 1 = "], VARIABLE [@p1], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["param 2 = "], VARIABLE [@p2], NEWLINE [
 ], END [end], NEWLINE [
@@ -183,35 +209,44 @@ BEGIN [begin], SYMBOL [name], NEWLINE [
 ], FUNC [function], VARIABLE [@g], NEWLINE [
 ], FUNC [function], VARIABLE [@h], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["inside function h()"], NEWLINE [
-], VARIABLE [@v], ASSIGN [=], INTEGER_LITERAL [10], NEWLINE [
-], VARIABLE [@x], ASSIGN [=], INTEGER_LITERAL [20], NEWLINE [
+], VARIABLE [@v], ASSIGN [=], NUMBER_LITERAL [10], NEWLINE [
+], VARIABLE [@x], ASSIGN [=], NUMBER_LITERAL [20], NEWLINE [
 ], END [end], NEWLINE [
 ], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["inside function g()"], NEWLINE [
-], VARIABLE [@v], ASSIGN [=], INTEGER_LITERAL [1], NEWLINE [
+], VARIABLE [@v], ASSIGN [=], NUMBER_LITERAL [1], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["v = "], VARIABLE [@v], NEWLINE [
 ], VARIABLE [@h], NEWLINE [
 ], END [end], NEWLINE [
 ], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["Welcome to my program demo"], NEWLINE [
-], VARIABLE [@a], ASSIGN [=], INTEGER_LITERAL [10], NEWLINE [
+], VARIABLE [@a], ASSIGN [=], NUMBER_LITERAL [10], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["set a to 10 = "], VARIABLE [@a], NEWLINE [
 ], NEWLINE [
-], VARIABLE [@a], ADD_ASSIGN [+=], INTEGER_LITERAL [2], NEWLINE [
+], VARIABLE [@d], ADD [+], VARIABLE [@p], NEWLINE [
+], NEWLINE [
+], PRINT [print], STRING_LITERAL ["begin assign test"], NEWLINE [
+], VARIABLE [@a], ADD [+], NUMBER_LITERAL [2], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["add 2 to a = "], VARIABLE [@a], NEWLINE [
 ], NEWLINE [
-], VARIABLE [@a], ADD_ASSIGN [+=], VARIABLE [@a], NEWLINE [
+], VARIABLE [@a], ADD [+], VARIABLE [@a], NEWLINE [
+], PRINT [print], STRING_LITERAL ["a = "], VARIABLE [@a], NEWLINE [
+], PRINT [print], STRING_LITERAL ["end assign test"], NEWLINE [
+], NEWLINE [
+], VARIABLE [@a], SUB_ASSIGN [-=], NUMBER_LITERAL [4], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["a = "], VARIABLE [@a], NEWLINE [
 ], NEWLINE [
-], VARIABLE [@a], SUB_ASSIGN [-=], INTEGER_LITERAL [4], NEWLINE [
-], PRINT [print], STRING_LITERAL ["a = "], VARIABLE [@a], NEWLINE [
-], NEWLINE [
-], VARIABLE [@z], ASSIGN [=], INTEGER_LITERAL [33], NEWLINE [
+], VARIABLE [@z], ASSIGN [=], NUMBER_LITERAL [33], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["z = "], VARIABLE [@z], NEWLINE [
 ], NEWLINE [
-], VARIABLE [@z], SUB_ASSIGN [-=], VARIABLE [@a], NEWLINE [
+], VARIABLE [@z], SUB [-], VARIABLE [@a], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["subtract a from z = "], VARIABLE [@z], NEWLINE [
 ], NEWLINE [
+], VARIABLE [@z], MUL [*], NUMBER_LITERAL [3], NEWLINE [
+], PRINT [print], STRING_LITERAL ["multiply 3 and z = "], VARIABLE [@z], NEWLINE [
+], NEWLINE [
+], VARIABLE [@z], DIV [/], NUMBER_LITERAL [3.14], NEWLINE [
+], PRINT [print], STRING_LITERAL ["divide z by 3.14 = "], VARIABLE [@z], NEWLINE [
 ], NEWLINE [
 ], VARIABLE [@a], ASSIGN [=], HEX_LITERAL [0xff], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["a = "], VARIABLE [@a], NEWLINE [
@@ -225,11 +260,19 @@ BEGIN [begin], SYMBOL [name], NEWLINE [
 ], VARIABLE [@b], DEC [--], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["decrement b = "], VARIABLE [@b], NEWLINE [
 ], NEWLINE [
-], VARIABLE [@c], ASSIGN [=], INTEGER_LITERAL [100000], NEWLINE [
+], VARIABLE [@c], ASSIGN [=], NUMBER_LITERAL [100000], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["c = "], VARIABLE [@c], NEWLINE [
 ], NEWLINE [
+], VARIABLE [@e], ASSIGN [=], NUMBER_LITERAL [7], NEWLINE [
+], VARIABLE [@e], EXPONENT [^], NUMBER_LITERAL [13], NEWLINE [
+], PRINT [print], STRING_LITERAL ["7 ^ 13 = "], VARIABLE [@e], NEWLINE [
+], NEWLINE [
+], VARIABLE [@e], ASSIGN [=], NUMBER_LITERAL [10], NEWLINE [
+], VARIABLE [@e], MODULUS [%], NUMBER_LITERAL [8], NEWLINE [
+], PRINT [print], STRING_LITERAL ["10 % 8 = "], VARIABLE [@e], NEWLINE [
+], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["before function test"], NEWLINE [
-], VARIABLE [@f], INTEGER_LITERAL [10], STRING_LITERAL ["2nd param"], NEWLINE [
+], VARIABLE [@f], NUMBER_LITERAL [10], STRING_LITERAL ["2nd param"], NEWLINE [
 ], VARIABLE [@g], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["after function test"], NEWLINE [
 ], NEWLINE [
@@ -247,7 +290,7 @@ BEGIN [begin], SYMBOL [name], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["f = "], VARIABLE [@foo], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["b = "], VARIABLE [@bar], NEWLINE [
 ], VARIABLE [@fb], ASSIGN [=], VARIABLE [@foo], NEWLINE [
-], VARIABLE [@fb], ADD_ASSIGN [+=], VARIABLE [@bar], NEWLINE [
+], VARIABLE [@fb], ADD [+], VARIABLE [@bar], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["f = "], VARIABLE [@foo], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["b = "], VARIABLE [@bar], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["fb = "], VARIABLE [@fb], NEWLINE [
@@ -258,10 +301,15 @@ BEGIN [begin], SYMBOL [name], NEWLINE [
 ], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["Memory Dump:"], NEWLINE [
 ], DUMP [dump], NEWLINE [
+], PRINT [print], STRING_LITERAL ["Delete everything except function f"], NEWLINE [
+], DELETE [delete], VARIABLE [@a], VARIABLE [@b], VARIABLE [@c], VARIABLE [@y], VARIABLE [@fb], VARIABLE [@foo], VARIABLE [@bar], VARIABLE [@p], VARIABLE [@g], VARIABLE [@d], VARIABLE [@z], VARIABLE [@e], NEWLINE [
+], DUMP [dump], NEWLINE [
 ], NEWLINE [
 ], PRINT [print], STRING_LITERAL ["Tokens:"], NEWLINE [
 ], TOKENS [tokens], NEWLINE [
 ], END [end], NEWLINE [
 ], null [<EOF>], 
+
+
  
 ```
