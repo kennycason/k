@@ -10,11 +10,17 @@ public class GrammarBaseListener implements GrammarListener {
 	@Override public void enterAssign(GrammarParser.AssignContext ctx) { }
 	@Override public void exitAssign(GrammarParser.AssignContext ctx) { }
 
+	@Override public void enterStart(GrammarParser.StartContext ctx) { }
+	@Override public void exitStart(GrammarParser.StartContext ctx) { }
+
 	@Override public void enterExpr(GrammarParser.ExprContext ctx) { }
 	@Override public void exitExpr(GrammarParser.ExprContext ctx) { }
 
 	@Override public void enterLiteral(GrammarParser.LiteralContext ctx) { }
 	@Override public void exitLiteral(GrammarParser.LiteralContext ctx) { }
+
+	@Override public void enterFunction(GrammarParser.FunctionContext ctx) { }
+	@Override public void exitFunction(GrammarParser.FunctionContext ctx) { }
 
 	@Override public void enterEveryRule(ParserRuleContext ctx) { }
 	@Override public void exitEveryRule(ParserRuleContext ctx) { }

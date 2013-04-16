@@ -16,8 +16,6 @@ import org.junit.Test;
 
 public class GrammarTest {
 
-	private TokenMapper mapper = new TokenMapper(FileUtils.pwd() + "src/main/java/grammar/gen/Grammar.tokens");
-	
 	@Test
 	public void test() {
 		
@@ -53,7 +51,9 @@ public class GrammarTest {
 		// System.out.println("parsed: " + tokens.size() + " tokens");
 		for(Token token : tokens) {
 			// mapper.type(token.getType())
-			System.out.print(mapper.type(token.getType()) + " [" + token.getText() + "], ");
+			if(token.getType() > 0) {
+				System.out.print(GrammarLexer.tokenNames[token.getType()] + " [" + token.getText() + "], ");
+			}
 		}
 		System.out.println();
 	}

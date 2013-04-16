@@ -7,9 +7,15 @@ public interface GrammarListener extends ParseTreeListener {
 	void enterAssign(GrammarParser.AssignContext ctx);
 	void exitAssign(GrammarParser.AssignContext ctx);
 
+	void enterStart(GrammarParser.StartContext ctx);
+	void exitStart(GrammarParser.StartContext ctx);
+
 	void enterExpr(GrammarParser.ExprContext ctx);
 	void exitExpr(GrammarParser.ExprContext ctx);
 
 	void enterLiteral(GrammarParser.LiteralContext ctx);
 	void exitLiteral(GrammarParser.LiteralContext ctx);
+
+	void enterFunction(GrammarParser.FunctionContext ctx);
+	void exitFunction(GrammarParser.FunctionContext ctx);
 }

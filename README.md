@@ -5,7 +5,7 @@ It's goal is to be simple enough for me to eventually be able to compile a natur
 
 Example Code:
 ```
-begin main
+begin 
 	logging on		// turn logging on, should be on by default
 	
 	// function definitions

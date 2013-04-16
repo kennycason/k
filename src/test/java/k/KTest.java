@@ -7,6 +7,7 @@ public class KTest {
 		K k = new K();
 		k.compileFromFile("k/program.k");
 		k.run();
+
 	}
-	
+
 }

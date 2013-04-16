@@ -1,6 +1,8 @@
 package k;
 
 import grammar.gen.GrammarLexer;
+import grammar.gen.GrammarParser;
+import grammar.gen.GrammarParser.StartContext;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -10,27 +12,39 @@ import k.types.KBoolean;
 import k.types.KFunction;
 import k.types.KNumber;
 import k.types.KString;
+import lib.FileUtils;
 import lib.io.FileReader;
 
 import org.antlr.v4.runtime.ANTLRInputStream;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.CommonTokenStream;
+import org.antlr.v4.runtime.ParserRuleContext;
 import org.antlr.v4.runtime.Token;
+import org.antlr.v4.runtime.atn.ATN;
+import org.antlr.v4.runtime.tree.ParseTree;
 import org.apache.log4j.Logger;
 
-public class K {
+import antlr.collections.AST;
+
+public class KExperiment {
+	
+	GrammarLexer lexer;
+	
+	GrammarParser parser;
 	
 	private List<Token> rawTokens;
 	
 	private CommonTokenStream tokenStream;
 	
+	private StartContext start;
+	
 	private KFunction begin;
 	
 	private boolean logging;
 	
-	private static final Logger LOGGER = Logger.getLogger(K.class);
+	private static final Logger LOGGER = Logger.getLogger(KExperiment.class);
 	
-	public K() {
+	public KExperiment() {
 		rawTokens = new LinkedList<Token>();
 		logging = true;
 	}
@@ -42,9 +56,7 @@ public class K {
 	private void printTokens() {
 		StringBuffer sb = new StringBuffer();
 		for(Token token : rawTokens) {
-			if(token.getType() >= 0) {
-				sb.append(GrammarLexer.tokenNames[token.getType()] + " [" + token.getText() + "], ");
-			}
+			sb.append(GrammarLexer.tokenNames[token.getType()] + " [" + token.getText() + "], ");
 		}
 		sb.append("\n");
 		System.out.println(sb);
@@ -57,32 +69,13 @@ public class K {
 
 	public void compile(String code) {
 		CharStream stream = new ANTLRInputStream(code);
-		GrammarLexer lexer = new GrammarLexer(stream);
+		lexer = new GrammarLexer(stream);
 		tokenStream = new CommonTokenStream(lexer);
 		tokenStream.fill();
+		parser = new GrammarParser(tokenStream);
 		rawTokens.addAll(tokenStream.getTokens());
-		LinkedList<Token> consumableTokens = new LinkedList<Token>();
-		consumableTokens.addAll(tokenStream.getTokens());
-		parseFunctions(consumableTokens);
 	}
-	
-	// find entry point begin function
-	private void parseFunctions(LinkedList<Token> tokens) {
-		
-		while(!tokens.isEmpty()) {
-			Token token = tokens.poll();
-			switch(token.getType()) {
-				case GrammarLexer.BEGIN:
-					begin = new KFunction();
-					parseFunctionHelper(begin, tokens);
-					break;
-					
-				case GrammarLexer.END:
-					return;
-			}
-		}
-	}
-	
+
 	private void parseFunctionHelper(KFunction function, LinkedList<Token> tokens) {
 		while(!tokens.isEmpty()) {
 			Token token = tokens.poll();
@@ -106,7 +99,22 @@ public class K {
 	}
 
 	public void run() {
-		run(begin);
+		start = parser.start();
+		System.out.println(start.toStringTree());
+		for(ParseTree tree : start.children) {
+			run(tree);
+		}
+	}
+	
+	private void run(ParseTree tree) {
+		if(tree.getChildCount() == 0) {
+			System.out.println("\tleaf: " + tree);
+			return;
+		}
+		System.out.println("rule: " + tree);
+		for(int i = 0; i < tree.getChildCount(); i++) {
+			run(tree.getChild(i));
+		}
 	}
 		
 	private void run(KFunction fn) {
@@ -170,9 +178,7 @@ public class K {
 		do {
 			String printable = "";
 			token = fn.nextToken();
-			if(token.getType() >= 0) {
-				trace("printing " + GrammarLexer.tokenNames[token.getType()] + " => " + token.getText());
-			}
+			trace("printing " + GrammarLexer.tokenNames[token.getType()] + " => " + token.getText());
 			switch(token.getType()) {
 				case GrammarLexer.VARIABLE:
 					IStorable<?> storable = fn.memory().read(token.getText());

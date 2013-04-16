@@ -7,7 +7,11 @@ grammar Grammar;
  * PARSER RULES
  *------------------------------------------------------------------*/
 
-expr : literal | assign | VARIABLE;
+start :  BEGIN expr* END;
+
+function : FUNC VARIABLE expr* END;
+
+expr : (literal | assign | VARIABLE | NL ) NL?;
 
 assign : VARIABLE ASSIGN (VARIABLE | literal);
 
@@ -40,8 +44,8 @@ ELSE	: ('else');
 ELSEIF	: ELSE IF;
 LOOP 	: ('loop');
 BREAK	: ('break');
-BEGIN	: ('begin');
-END 	: ('end');
+BEGIN	: ('begin') NL?;
+END 	: ('end') NL?;
 TRUE	: ('true');
 FALSE 	: ('false');	
 NULL	: ('null'); 
@@ -107,7 +111,7 @@ ACTION : '{' ( ACTION | ~[{}] )* '}' ;
 
 SYMBOL : CHAR+;
 
-NEWLINE :'\r'? '\n';
+NL :'\r'? '\n';
 
 WS : [ \t\u000C]+ -> skip;
 

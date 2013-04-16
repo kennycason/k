@@ -1,4 +1,4 @@
-begin main
+begin
 	logging on		// turn logging on, should be on by default
 	
 	// function definitions
@@ -111,5 +111,5 @@ begin main
 	dump
 	
 	print "Tokens:"
-	tokens
+	// tokens
 end
