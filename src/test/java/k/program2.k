@@ -1,4 +1,4 @@
 begin
-	@a = 4
-	@v = "test"
+	a = 4
+	v = "test"
 end

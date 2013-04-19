@@ -1,6 +1,5 @@
 package k;
 
-
 public class KTest {
 
 	public static void main(String[] args) {

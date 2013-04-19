@@ -1,4 +1,4 @@
-// Generated from /home/destructo/workspace/k/src/main/java/grammar/Grammar.g4 by ANTLR 4.0
+// Generated from /home/kenny/workspace/k/src/main/java/grammar/Grammar.g4 by ANTLR 4.0
  package grammar.gen; 
 import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;

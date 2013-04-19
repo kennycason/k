@@ -69,7 +69,7 @@ MODULUS_ASSIGN : ('%=');
 fragment
 CHAR	: [a-zA-Z_];
 
-VARIABLE	: ('@') CHAR+ (CHAR | INT_DIGIT)*;
+VARIABLE	: CHAR+ (CHAR | INT_DIGIT)*;
 
 HEX_LITERAL : ('0x') HEX_DIGIT+;
 
