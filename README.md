@@ -1,7 +1,6 @@
 K
 =================
-a sample program. This will be a simple functional programming language. 
-It's goal is to be simple enough for me to eventually be able to compile a natural langague into.
+a sample program. This will be my playground for programming languages
 
 Example Code:
 ```
